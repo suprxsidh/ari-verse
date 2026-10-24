@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ari-verse</title>
+<style>
+  :root {
+    --bg1: #ffebf2;
+    --bg2: #e0c3fc;
+    --accent: #d81b60;
+    --text: #2c1638;
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: ui-rounded, "Hiragino Maru Gothic ProN", Quicksand, Comfortaa, Manjari, "Arial Rounded MT Bold", Calibri, -apple-system, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    font-family: var(--font-main);
+    color: var(--text);
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    transition: background 0.5s ease, color 0.3s ease;
+  }
+
+  body {
+    padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3, .display-font {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  button {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  button:active {
+    transform: scale(0.96);
+  }
+
+  button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--text);
+    outline-offset: 2px;
+  }
+
+  button.secondary {
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--text);
+    border: 2px solid var(--accent);
+  }
+
+  input[type="text"] {
+    font-family: var(--font-main);
+    font-size: 16px;
+    min-height: 44px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.9);
+    color: #111;
+  }
+
+  .screen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  /* Title Screen */
+  #title-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(-45deg, #ffdde1, #ee9ca7, #c2e9fb, #e0c3fc);
+    background-size: 300% 300%;
+    animation: softGradient 12s ease infinite;
+    border-radius: 24px;
+    margin: 12px auto;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  }
+
+  .title-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    padding: 36px 24px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .title-card h1 {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    color: #4a154b;
+  }
+
+  .title-card p {
+    font-size: 1.05rem;
+    margin-bottom: 28px;
+    line-height: 1.5;
+    color: #5c3c67;
+  }
+
+  /* Top Bar & Settings */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0 12px;
+  }
+
+  .icon-btn {
+    background: rgba(255, 255, 255, 0.65);
+    color: var(--text);
+    padding: 8px 14px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  /* Hub Screen */
+  .hub-header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .hub-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+
+  .hallway {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 32px;
+  }
+
+  .door-btn {
+    width: 100%;
+    min-height: 68px;
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.82);
+    color: #222;
+    border: 2px solid rgba(255,255,255,0.9);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  }
+
+  .door-btn.locked {
+    background: rgba(255, 255, 255, 0.4);
+    color: rgba(0, 0, 0, 0.5);
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .door-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .door-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .door-sub {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    font-weight: 500;
+  }
+
+  .door-status {
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .secret-badge {
+    font-size: 0.75rem;
+    background: #ffe082;
+    color: #5d4037;
+    padding: 3px 8px;
+    border-radius: 99px;
+    font-weight: 700;
+  }
+
+  /* Room Screen */
+  .room-header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .room-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .room-meta {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .room-intro {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    background: rgba(255, 255, 255, 0.45);
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+
+  .progress-bar {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 99px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .scene-area {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    background: rgba(255, 255, 255, 0.28);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .scene-art {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .scene-art svg { width: 100%; height: 100%; display: block; }
+  .hidden-obj { z-index: 2; }
+  .scene-hint { z-index: 3; text-shadow: 0 1px 3px rgba(255,255,255,0.8); }
+
+  .scene-hint {
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    font-size: 0.75rem;
+    opacity: 0.65;
+    pointer-events: none;
+  }
+
+  .hidden-obj {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    min-width: 48px;
+    min-height: 48px;
+    padding: 6px;
+    font-size: 1.75rem;
+    background: rgba(255, 255, 255, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    animation: floatObj 3.4s ease-in-out infinite;
+  }
+
+  .hidden-obj.found {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: var(--accent);
+  }
+
+  .hidden-obj.found::after {
+    content: "✓";
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+  }
+
+  .panel-card {
+    background: rgba(255, 255, 255, 0.82);
+    color: #1f1f1f;
+    padding: 16px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+
+  .puzzle-step {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .puzzle-prompt {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .puzzle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-row button {
+    flex: 1;
+  }
+
+  .hint-box {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 10px 12px;
+    border-radius: 12px;
+    display: none;
+  }
+
+  .hint-box.visible {
+    display: block;
+  }
+
+  .feedback-msg {
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-height: 20px;
+    margin-top: 6px;
+    color: #c62828;
+  }
+
+  .unlock-card {
+    text-align: center;
+  }
+
+  .unlock-card h3 {
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+
+  .unlock-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .bday-note {
+    white-space: pre-line;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 18px;
+    border-radius: 16px;
+    border: 2px solid var(--accent);
+    margin-bottom: 16px;
+    font-size: 1.02rem;
+    line-height: 1.55;
+  }
+
+  /* Modal Overlay */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+
+  .modal-backdrop.open {
+    display: flex;
+  }
+
+  .modal-card {
+    background: #fff;
+    color: #222;
+    width: 100%;
+    max-width: 360px;
+    border-radius: 22px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  }
+
+  .modal-emoji {
+    font-size: 2.6rem;
+    margin-bottom: 8px;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+  }
+
+  .modal-fact {
+    font-size: 0.98rem;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    color: #444;
+  }
+
+  /* Confetti Canvas */
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+  }
+
+  /* Animations */
+  @keyframes softGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes floatObj {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+    50% { transform: translate(-50%, -50%) translateY(-6px); }
+  }
+
+  @keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .shake {
+    animation: shakeAnim 0.35s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .hidden-obj {
+      animation: none !important;
+    }
+    .shake {
+      animation: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Top bar with settings/reset -->
+<div class="top-bar" style="max-width:480px; width:100%; margin:0 auto; padding: 4px 12px;">
+  <button id="home-btn" class="icon-btn" type="button" style="visibility:hidden;" aria-label="Back to Hallway">← Hallway</button>
+  <button id="settings-btn" class="icon-btn" type="button" aria-label="Settings and Reset">⚙️ Reset</button>
+</div>
+
+<!-- 1. Title Screen -->
+<main id="title-screen" class="screen active">
+  <div class="title-card">
+    <h1>Ari-verse</h1>
+    <p>Seven eras. Secret keepsakes. Playful riddles made just for your birthday.</p>
+    <button id="start-btn" type="button" style="width:100%; font-size:1.1rem;">Start Adventure ✨</button>
+  </div>
+</main>
+
+<!-- 2. Hub Screen -->
+<section id="hub-screen" class="screen" aria-label="Era Hallway">
+  <div class="hub-header">
+    <h2>The Era Hallway</h2>
+    <p id="hub-sub">Unlock each door in order to reach the finale.</p>
+  </div>
+  <div id="hallway-list" class="hallway"></div>
+</section>
+
+<!-- 3 & 4. Room & Finale Screen -->
+<section id="room-screen" class="screen" aria-label="Era Room">
+  <div class="room-header">
+    <div id="room-meta" class="room-meta"></div>
+    <h2 id="room-title"></h2>
+  </div>
+  <p id="room-intro" class="room-intro"></p>
+  <div id="room-progress" class="progress-bar"></div>
+
+  <div id="scene-area" class="scene-area" aria-label="Interactive Scene">
+    <span class="scene-hint">Tap floating keepsakes</span>
+  </div>
+
+  <div id="puzzle-panel" class="panel-card">
+    <div id="puzzle-step" class="puzzle-step"></div>
+    <p id="puzzle-prompt" class="puzzle-prompt"></p>
+    <div class="puzzle-controls">
+      <input id="puzzle-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Type your answer..." aria-label="Puzzle answer">
+      <div class="btn-row">
+        <button id="check-btn" type="button">Check</button>
+        <button id="hint-btn" type="button" class="secondary">Hint</button>
+      </div>
+    </div>
+    <div id="feedback-msg" class="feedback-msg" role="status" aria-live="polite"></div>
+    <div id="hint-box" class="hint-box"></div>
+  </div>
+
+  <div id="complete-panel" class="panel-card unlock-card" style="display:none;">
+    <h3 id="complete-heading">Room Complete!</h3>
+    <p id="unlock-line"></p>
+    <div id="birthday-card" class="bday-note" style="display:none;"></div>
+    <button id="back-hub-btn" type="button" style="width:100%;">Back to Hallway</button>
+  </div>
+</section>
+
+<!-- Fact & Settings Modal -->
+<div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div id="modal-emoji" class="modal-emoji"></div>
+    <h3 id="modal-title" class="modal-title"></h3>
+    <p id="modal-fact" class="modal-fact"></p>
+    <div id="modal-actions" class="btn-row">
+      <button id="modal-close-btn" type="button" style="width:100%;">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load external rooms.js -->
+<script src="./rooms.js"></script>
+<script>
+(function() {
+  const NAME_PLACEHOLDER = "you";
+  const STORAGE_KEY = "ariverse_bday_save_v1";
+
+  // Fallback data in case ./rooms.js is missing during local preview
+  const FALLBACK_ROOMS = [
+    {
+      id: "room1", era: "Yours Truly", year: 2013,
+      palette: { bg1: "#fce4ec", bg2: "#f8bbd0", accent: "#c2185b", text: "#311b25" },
+      mood: "Sweet daydream soul",
+      intro: "Soft pink spotlights and vintage microphones welcome you to the debut era.",
+      hidden: [
+        { emoji: "🎤", label: "Debut Mic", x: 24, y: 38, fact: "Yours Truly debuted at number one on the US Billboard 200 chart in September 2013.", confidence: "high" },
+        { emoji: "🎀", label: "Satin Bow", x: 58, y: 65, fact: "The lead single The Way featuring Mac Miller entered the top ten on the Billboard Hot 100.", confidence: "high" },
+        { emoji: "💌", label: "Pink Letter", x: 78, y: 30, fact: "Baby I was released as the second single from Yours Truly in July 2013.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Emoji riddle for the lead single title: 🛣️", answers: ["the way", "way"], hint: "Two words. It features Mac Miller." },
+        { prompt: "Complete the track title from this album: Honeymoon ___", answers: ["avenue", "ave"], hint: "It is the opening track of the album." },
+        { prompt: "Which song title pairs the word Tattooed with an organ that beats?", answers: ["tattooed heart", "heart"], hint: "Two words. The second word is Heart." }
+      ],
+      unlockLine: "The debut curtain rises and the next door clicks open!"
+    },
+    {
+      id: "room2", era: "My Everything", year: 2014,
+      palette: { bg1: "#ede7f6", bg2: "#cfd8dc", accent: "#512da8", text: "#1c1829" },
+      mood: "Pop galaxy breakthrough",
+      intro: "Silver strobes and lavender haze fill this high-energy studio.",
+      hidden: [
+        { emoji: "🎷", label: "Brass Horn", x: 22, y: 55, fact: "Problem featuring Iggy Azalea debuted at number three before peaking at number two on the Hot 100.", confidence: "high" },
+        { emoji: "🚀", label: "Space Helmet", x: 52, y: 32, fact: "Break Free was produced by Zedd and peaked at number four on the Billboard Hot 100.", confidence: "high" },
+        { emoji: "🎧", label: "Studio Cans", x: 80, y: 60, fact: "Love Me Harder is a duet with The Weeknd from the album My Everything.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Song title riddle: One less ❓", answers: ["problem"], hint: "Single word. Features Iggy Azalea." },
+        { prompt: "Name the Zedd collaboration with a space-themed music video: ___ Free", answers: ["break free", "break"], hint: "Two words starting with B and F." },
+        { prompt: "Which power collaboration with Jessie J and Nicki Minaj is on the deluxe edition?", answers: ["bang bang"], hint: "Two identical words." }
+      ],
+      unlockLine: "Out of this world! Door three is ready."
+    },
+    {
+      id: "room3", era: "Dangerous Woman", year: 2016,
+      palette: { bg1: "#e0e0e0", bg2: "#9e9e9e", accent: "#212121", text: "#141414" },
+      mood: "Bold nocturnal glamour",
+      intro: "Sleek monochrome shadows and confident basslines echo off the walls.",
+      hidden: [
+        { emoji: "🐰", label: "Iconic Mask", x: 30, y: 40, fact: "Dangerous Woman was released in May 2016 and became her first number-one album in the UK.", confidence: "high" },
+        { emoji: "🚲", label: "Fitness Bike", x: 64, y: 68, fact: "Side to Side features Nicki Minaj and reached the top five on the Billboard Hot 100.", confidence: "high" },
+        { emoji: "💎", label: "Black Gem", x: 76, y: 28, fact: "Into You was released as the second single from Dangerous Woman.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Emoji riddle for a gym-themed hit with Nicki Minaj: ↔️", answers: ["side to side"], hint: "Three words: ___ to ___." },
+        { prompt: "Complete this synth-pop dance single title: ___ You", answers: ["into you", "into"], hint: "Starts with the word Into." },
+        { prompt: "Name the title track of this 2016 album.", answers: ["dangerous woman"], hint: "Look at the room header!" }
+      ],
+      unlockLine: "Bold and unstoppable. Door four awaits."
+    },
+    {
+      id: "room4", era: "Sweetener", year: 2018,
+      palette: { bg1: "#fff3e0", bg2: "#ffe0b2", accent: "#bf360c", text: "#3e2723" },
+      mood: "Upside-down golden warmth",
+      intro: "Staircases climb across the ceiling while golden hour light pours in.",
+      hidden: [
+        { emoji: "☂️", label: "Floating Umbrella", x: 25, y: 62, fact: "Sweetener won the Grammy Award for Best Pop Vocal Album in 2019.", confidence: "high" },
+        { emoji: "🌍", label: "Painted Globe", x: 54, y: 35, fact: "No Tears Left to Cry was the lead single from Sweetener, released in April 2018.", confidence: "high" },
+        { emoji: "☁️", label: "Dream Cloud", x: 82, y: 50, fact: "Breathin peaked at number 12 on the US Billboard Hot 100.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Emoji riddle for the lead single: 🚫💧⬅️😭", answers: ["no tears left to cry"], hint: "Five words about running out of tears." },
+        { prompt: "Which single title states that the Almighty is female?", answers: ["god is a woman"], hint: "Four words starting with God." },
+        { prompt: "Single-word song title about inhaling and exhaling, spelled without a final G.", answers: ["breathin", "breathing"], hint: "Starts with B." }
+      ],
+      unlockLine: "Golden light guides you to the fifth door."
+    },
+    {
+      id: "room5", era: "Thank U, Next", year: 2019,
+      palette: { bg1: "#f8bbd0", bg2: "#f48fb1", accent: "#880e4f", text: "#2b0918" },
+      mood: "Pop history and neon rings",
+      intro: "Burn-book pink walls and sparkling diamonds light up this iconic space.",
+      hidden: [
+        { emoji: "💍", label: "Sparkling Ring", x: 20, y: 36, fact: "7 Rings spent eight non-consecutive weeks at number one on the Billboard Hot 100.", confidence: "high" },
+        { emoji: "📓", label: "Pink Scrapbook", x: 55, y: 66, fact: "Thank U, Next became her first number-one single on the US Billboard Hot 100.", confidence: "high" },
+        { emoji: "💄", label: "Gloss Tube", x: 80, y: 34, fact: "Ariana held the top three spots on the Billboard Hot 100 simultaneously in February 2019.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Emoji riddle: 7️⃣💍", answers: ["7 rings", "seven rings"], hint: "A number followed by jewelry." },
+        { prompt: "Complete the title of the final track on this album: break up with your girlfriend, ___", answers: ["im bored", "i am bored"], hint: "Two words: I'm ___." },
+        { prompt: "Which song title on this album is a NASA space agency acronym?", answers: ["nasa"], hint: "Four letters." }
+      ],
+      unlockLine: "Icon status confirmed! Door six is unlocked."
+    },
+    {
+      id: "room6", era: "Positions", year: 2020,
+      palette: { bg1: "#e8f5e9", bg2: "#c8e6c9", accent: "#2e7d32", text: "#1b3022" },
+      mood: "Lush strings and retro charm",
+      intro: "Mint-green curtains and warm orchestral strings set a cozy groove.",
+      hidden: [
+        { emoji: "🏛️", label: "Desk Seal", x: 28, y: 50, fact: "The song Positions debuted at number one on the Billboard Hot 100 in November 2020.", confidence: "high" },
+        { emoji: "🧮", label: "Retro Counter", x: 60, y: 30, fact: "34+35 peaked at number two on the Billboard Hot 100.", confidence: "high" },
+        { emoji: "🦋", label: "Garden Charm", x: 78, y: 64, fact: "Save Your Tears (Remix) with The Weeknd reached number one on the Hot 100 in 2021.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Which song title is a math addition problem that equals 69?", answers: ["34+35", "34 35", "thirty four thirty five"], hint: "Two two-digit numbers with a plus sign." },
+        { prompt: "Emoji riddle for the lead single where she runs the White House: 🔄💼", answers: ["positions"], hint: "It is also the album title." },
+        { prompt: "Complete this track title featuring Doja Cat: ___", answers: ["motive"], hint: "Single word meaning a reason for doing something." }
+      ],
+      unlockLine: "Smooth as silk! One last era door remains."
+    },
+    {
+      id: "room7", era: "Eternal Sunshine", year: 2024,
+      palette: { bg1: "#ffebee", bg2: "#ffccbc", accent: "#b71c1c", text: "#3b1414" },
+      mood: "Warm cinema and ruby light",
+      intro: "Sunlight beams through red velvet drapes in a cozy screening room.",
+      hidden: [
+        { emoji: "☀️", label: "Sunbeam Lens", x: 24, y: 42, fact: "Yes, And? debuted at number one on the Billboard Hot 100 in January 2024.", confidence: "high" },
+        { emoji: "🧸", label: "Plush Bear", x: 56, y: 64, fact: "We Can't Be Friends (Wait for Your Love) also debuted at number one on the Hot 100.", confidence: "high" },
+        { emoji: "🎞️", label: "Film Reel", x: 82, y: 36, fact: "Eternal Sunshine became her sixth number-one album on the US Billboard 200.", confidence: "high" }
+      ],
+      puzzles: [
+        { prompt: "Emoji riddle for the house-inspired lead single: ✅➕❓", answers: ["yes and"], hint: "Two words: ___ , ___?" },
+        { prompt: "Complete the chart-topping single title: we can't be ___", answers: ["friends", "we cant be friends", "we cant be friends wait for your love"], hint: "Plural noun for pals." },
+        { prompt: "Which track title calls a boy's ownership of himself into question: the boy is ___", answers: ["mine", "the boy is mine"], hint: "Four words ending in Mine." }
+      ],
+      unlockLine: "All seven eras complete! The Finale door is now open!"
+    }
+  ];
+
+  const FALLBACK_FINALE = {
+    id: "finale",
+    era: "The Birthday Finale",
+    palette: { bg1: "#fce4ec", bg2: "#fff9c4", accent: "#ad1457", text: "#2e1527" },
+    mood: "Pure celebration",
+    intro: "Welcome to the VIP birthday lounge! Every era shines together right here.",
+    hidden: [
+      { emoji: "🎂", label: "Birthday Cake", x: 25, y: 48, fact: "Ariana Grande was born on June 26, 1993, in Boca Raton, Florida." },
+      { emoji: "🐕", label: "Toulouse Tag", x: 55, y: 32, fact: "Her rescue dog Toulouse has appeared with her on magazine covers and in music videos." },
+      { emoji: "🌟", label: "Star Trophy", x: 78, y: 56, fact: "She has achieved multiple number-one debuts on the Billboard Hot 100 across her career." }
+    ],
+    finalePuzzle: {
+      prompt: "Final VIP riddle: What is the last name of the pop star celebrated across all seven rooms?",
+      answers: ["grande", "ariana grande"],
+      hint: "It is also a coffee size!"
+    },
+    birthdayNote: "Happy Birthday, [NAME]!\n\nYou breezed through every era like a true vocal legend. Wishing you a year full of high notes, sweet moments, and nonstop shine!"
+  };
+
+  const ROOMS = (Array.isArray(window.ROOMS) && window.ROOMS.length) ? window.ROOMS : FALLBACK_ROOMS;
+  const FINALE = (window.FINALE && typeof window.FINALE === "object") ? window.FINALE : FALLBACK_FINALE;
+
+  // Game State
+  let state = {
+    started: false,
+    rooms: {}, // { [roomId]: { solvedCount: 0, completed: false, found: [] } }
+    finale: { completed: false, found: [] }
+  };
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          state = Object.assign(state, parsed);
+        }
+      }
+    } catch (e) {
+      // Storage unavailable or blocked; continue in memory
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      // Ignore storage errors
+    }
+  }
+
+  function getRoomState(roomId) {
+    if (!state.rooms[roomId]) {
+      state.rooms[roomId] = { solvedCount: 0, completed: false, found: [] };
+    }
+    return state.rooms[roomId];
+  }
+
+  function normalizeAnswer(str) {
+    return String(str || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function applyPalette(palette) {
+    const p = palette || { bg1: "#ffebf2", bg2: "#e0c3fc", accent: "#d81b60", text: "#2c1638" };
+    document.documentElement.style.setProperty("--bg1", p.bg1);
+    document.documentElement.style.setProperty("--bg2", p.bg2);
+    document.documentElement.style.setProperty("--accent", p.accent);
+    document.documentElement.style.setProperty("--text", p.text);
+  }
+
+  function showScreen(screenId) {
+    document.querySelectorAll(".screen").forEach(el => {
+      el.classList.toggle("active", el.id === screenId);
+    });
+    const homeBtn = document.getElementById("home-btn");
+    homeBtn.style.visibility = (screenId === "room-screen") ? "visible" : "hidden";
+    if (screenId !== "room-screen") {
+      stopConfetti();
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function triggerShake(el) {
+    el.classList.remove("shake");
+    void el.offsetWidth;
+    el.classList.add("shake");
+  }
+
+  // Hub Rendering
+  function renderHub() {
+    applyPalette({ bg1: "#ffebf2", bg2: "#e0c3fc", accent: "#d81b60", text: "#2c1638" });
+    const list = document.getElementById("hallway-list");
+    list.innerHTML = "";
+
+    let allSevenDone = true;
+
+    ROOMS.forEach((room, idx) => {
+      const rState = getRoomState(room.id);
+      if (!rState.completed) allSevenDone = false;
+
+      const prevDone = idx === 0 ? true : getRoomState(ROOMS[idx - 1].id).completed;
+      const isUnlocked = prevDone || rState.completed;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "door-btn" + (isUnlocked ? "" : " locked");
+      if (isUnlocked && room.palette) {
+        btn.style.borderLeft = "8px solid " + room.palette.accent;
+      }
+
+      const validHidden = (room.hidden || []).filter(h => !h.confidence || h.confidence === "high");
+      const foundCount = (rState.found || []).length;
+      const secretBadge = foundCount > 0
+        ? `<span class="secret-badge">Secrets ${foundCount}/${validHidden.length}</span>`
+        : "";
+
+      const statusIcon = rState.completed ? "✨" : (isUnlocked ? "🚪" : "🔒");
+
+      btn.innerHTML = `
+        <div class="door-info">
+          <span class="door-title">${idx + 1}. ${room.era}</span>
+          <span class="door-sub">${room.year ? room.year + " • " : ""}${room.mood || ""}</span>
+        </div>
+        <div class="door-status">
+          ${secretBadge}
+          <span aria-hidden="true">${statusIcon}</span>
+        </div>
+      `;
+
+      btn.addEventListener("click", () => {
+        if (!isUnlocked) {
+          triggerShake(btn);
+          return;
+        }
+        openRoom(room, false);
+      });
+
+      list.appendChild(btn);
+    });
+
+    // 8th Door: Finale
+    const finUnlocked = allSevenDone || state.finale.completed;
+    const finBtn = document.createElement("button");
+    finBtn.type = "button";
+    finBtn.className = "door-btn" + (finUnlocked ? "" : " locked");
+    if (finUnlocked && FINALE.palette) {
+      finBtn.style.borderLeft = "8px solid " + FINALE.palette.accent;
+    }
+
+    const finFound = (state.finale.found || []).length;
+    const finHiddenTotal = (FINALE.hidden || []).length;
+    const finBadge = finFound > 0
+      ? `<span class="secret-badge">Secrets ${finFound}/${finHiddenTotal}</span>`
+      : "";
+    const finIcon = state.finale.completed ? "🎉" : (finUnlocked ? "🌟" : "🔒");
+
+    finBtn.innerHTML = `
+      <div class="door-info">
+        <span class="door-title">8. ${FINALE.era || "Grand Finale"}</span>
+        <span class="door-sub">${FINALE.mood || "Birthday Celebration"}</span>
+      </div>
+      <div class="door-status">
+        ${finBadge}
+        <span aria-hidden="true">${finIcon}</span>
+      </div>
+    `;
+
+    finBtn.addEventListener("click", () => {
+      if (!finUnlocked) {
+        triggerShake(finBtn);
+        return;
+      }
+      openRoom(FINALE, true);
+    });
+
+    list.appendChild(finBtn);
+    showScreen("hub-screen");
+  }
+
+  // Room & Finale Logic
+  let activeRoom = null;
+  let activeIsFinale = false;
+
+  function openRoom(roomObj, isFinale) {
+    activeRoom = roomObj;
+    activeIsFinale = isFinale;
+    applyPalette(roomObj.palette);
+
+    const metaEl = document.getElementById("room-meta");
+    metaEl.textContent = isFinale
+      ? (roomObj.mood || "Birthday Finale")
+      : `${roomObj.year || ""} • ${roomObj.mood || ""}`;
+
+    document.getElementById("room-title").textContent = roomObj.era;
+    document.getElementById("room-intro").textContent = roomObj.intro || "";
+
+    renderScene();
+    updateRoomProgressAndPuzzle();
+    showScreen("room-screen");
+  }
+
+  function getValidHiddenList(roomObj) {
+    return (roomObj.hidden || []).filter(item => !item.confidence || item.confidence === "high");
+  }
+
+  function renderScene() {
+    const scene = document.getElementById("scene-area");
+    scene.innerHTML = '<span class="scene-hint">Tap floating keepsakes</span>';
+    if (activeRoom.art) {
+      const art = document.createElement("div");
+      art.className = "scene-art";
+      art.setAttribute("aria-hidden", "true");
+      art.innerHTML = activeRoom.art;
+      scene.insertBefore(art, scene.firstChild);
+    }
+
+    const items = getValidHiddenList(activeRoom);
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+
+    items.forEach((item, index) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      const isFound = rState.found.includes(index);
+      btn.className = "hidden-obj" + (isFound ? " found" : "");
+      btn.style.left = Math.min(88, Math.max(12, Number(item.x) || (25 + index * 25))) + "%";
+      btn.style.top = Math.min(82, Math.max(18, Number(item.y) || 50)) + "%";
+      btn.style.animationDelay = (index * 0.6) + "s";
+      btn.setAttribute("aria-label", item.label || "Hidden keepsake");
+      btn.textContent = item.emoji || "✨";
+
+      btn.addEventListener("click", () => {
+        if (!rState.found.includes(index)) {
+          rState.found.push(index);
+          saveState();
+          btn.classList.add("found");
+          updateProgressLine();
+        }
+        openFactModal(item);
+      });
+
+      scene.appendChild(btn);
+    });
+  }
+
+  function updateProgressLine() {
+    const items = getValidHiddenList(activeRoom);
+    const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+    const solved = activeIsFinale ? (rState.completed ? 1 : 0) : rState.solvedCount;
+    const found = rState.found.length;
+
+    const progressEl = document.getElementById("room-progress");
+    const badgeHtml = found > 0
+      ? `<span class="secret-badge">Secrets found ✨</span>`
+      : "";
+
+    progressEl.innerHTML = `
+      <span>objects found ${found}/${items.length}, puzzles solved ${solved}/${puzzles.length}</span>
+      ${badgeHtml}
+    `;
+  }
+
+  function updateRoomProgressAndPuzzle() {
+    updateProgressLine();
+
+    const puzzlePanel = document.getElementById("puzzle-panel");
+    const completePanel = document.getElementById("complete-panel");
+    const feedbackMsg = document.getElementById("feedback-msg");
+    const hintBox = document.getElementById("hint-box");
+    const inputEl = document.getElementById("puzzle-input");
+
+    feedbackMsg.textContent = "";
+    hintBox.classList.remove("visible");
+    hintBox.textContent = "";
+    inputEl.value = "";
+
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+    const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
+    const isDone = activeIsFinale ? rState.completed : (rState.solvedCount >= puzzles.length);
+
+    if (isDone) {
+      if (!activeIsFinale) rState.completed = true;
+      saveState();
+      puzzlePanel.style.display = "none";
+      completePanel.style.display = "block";
+
+      const bdayCard = document.getElementById("birthday-card");
+      const unlockLine = document.getElementById("unlock-line");
+      const heading = document.getElementById("complete-heading");
+
+      if (activeIsFinale) {
+        heading.textContent = "Happy Birthday! 🎉";
+        unlockLine.textContent = "You unlocked the entire Ari-verse!";
+        const noteText = String(activeRoom.birthdayNote || "").replace(/\[NAME\]/g, NAME_PLACEHOLDER);
+        bdayCard.textContent = noteText;
+        bdayCard.style.display = "block";
+        startConfetti();
+      } else {
+        heading.textContent = "Era Complete! ✨";
+        unlockLine.textContent = activeRoom.unlockLine || "The next door in the hallway is now open!";
+        bdayCard.style.display = "none";
+      }
+    } else {
+      puzzlePanel.style.display = "block";
+      completePanel.style.display = "none";
+      const currentIdx = activeIsFinale ? 0 : rState.solvedCount;
+      const currentPuzzle = puzzles[currentIdx];
+
+      document.getElementById("puzzle-step").textContent = activeIsFinale
+        ? "Finale Riddle"
+        : `Puzzle ${currentIdx + 1} of ${puzzles.length}`;
+      document.getElementById("puzzle-prompt").textContent = currentPuzzle ? currentPuzzle.prompt : "";
+    }
+  }
+
+  function checkCurrentPuzzle() {
+    const inputEl = document.getElementById("puzzle-input");
+    const feedbackMsg = document.getElementById("feedback-msg");
+    const userGuess = normalizeAnswer(inputEl.value);
+
+    if (!userGuess) {
+      triggerShake(inputEl);
+      return;
+    }
+
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+    const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
+    const currentIdx = activeIsFinale ? 0 : rState.solvedCount;
+    const currentPuzzle = puzzles[currentIdx];
+
+    if (!currentPuzzle) return;
+
+    const accepted = (currentPuzzle.answers || []).map(normalizeAnswer);
+    if (accepted.includes(userGuess)) {
+      if (activeIsFinale) {
+        rState.completed = true;
+      } else {
+        rState.solvedCount += 1;
+        if (rState.solvedCount >= puzzles.length) {
+          rState.completed = true;
+        }
+      }
+      saveState();
+      updateRoomProgressAndPuzzle();
+    } else {
+      feedbackMsg.textContent = "Not quite! Try again or tap Hint.";
+      triggerShake(inputEl);
+    }
+  }
+
+  function showCurrentHint() {
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+    const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
+    const currentIdx = activeIsFinale ? 0 : rState.solvedCount;
+    const currentPuzzle = puzzles[currentIdx];
+    const hintBox = document.getElementById("hint-box");
+
+    if (currentPuzzle && currentPuzzle.hint) {
+      hintBox.textContent = "Hint: " + currentPuzzle.hint;
+      hintBox.classList.add("visible");
+    }
+  }
+
+  // Modal Handling
+  const modalBackdrop = document.getElementById("modal-backdrop");
+  const modalEmoji = document.getElementById("modal-emoji");
+  const modalTitle = document.getElementById("modal-title");
+  const modalFact = document.getElementById("modal-fact");
+  const modalActions = document.getElementById("modal-actions");
+
+  function openFactModal(item) {
+    modalEmoji.textContent = item.emoji || "✨";
+    modalTitle.textContent = item.label || "Secret Found";
+    modalFact.textContent = item.fact || "";
+    modalActions.innerHTML = `<button id="modal-close-btn" type="button" style="width:100%;">Got it</button>`;
+    document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+    modalBackdrop.classList.add("open");
+    document.getElementById("modal-close-btn").focus();
+  }
+
+  function openResetModal() {
+    modalEmoji.textContent = "⚙️";
+    modalTitle.textContent = "Reset Progress?";
+    modalFact.textContent = "This will lock the doors again and clear your solved puzzles and found keepsakes.";
+    modalActions.innerHTML = `
+      <button id="cancel-reset-btn" type="button" class="secondary">Cancel</button>
+      <button id="confirm-reset-btn" type="button">Reset All</button>
+    `;
+    document.getElementById("cancel-reset-btn").addEventListener("click", closeModal);
+    document.getElementById("confirm-reset-btn").addEventListener("click", () => {
+      state = { started: false, rooms: {}, finale: { completed: false, found: [] } };
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      closeModal();
+      applyPalette(null);
+      showScreen("title-screen");
+    });
+    modalBackdrop.classList.add("open");
+    document.getElementById("cancel-reset-btn").focus();
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.remove("open");
+  }
+
+  modalBackdrop.addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+
+  // Confetti Celebration (No libraries, respects prefers-reduced-motion)
+  let confettiFrame = null;
+  function startConfetti() {
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.style.display = "block";
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ["#f48fb1", "#ce93d8", "#ffe082", "#80cbc4", "#ff8a80", "#ffffff"];
+    const pieces = Array.from({ length: 75 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      size: 6 + Math.random() * 6,
+      speedY: 1.8 + Math.random() * 2.5,
+      speedX: (Math.random() - 0.5) * 1.6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.1
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach(p => {
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.angle += p.spin;
+        if (p.y > canvas.height + 20) {
+          p.y = -15;
+          p.x = Math.random() * canvas.width;
+        }
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+        ctx.restore();
+      });
+      confettiFrame = requestAnimationFrame(draw);
+    }
+
+    stopConfetti();
+    canvas.style.display = "block";
+    draw();
+  }
+
+  function stopConfetti() {
+    if (confettiFrame) {
+      cancelAnimationFrame(confettiFrame);
+      confettiFrame = null;
+    }
+    const canvas = document.getElementById("confetti-canvas");
+    if (canvas) canvas.style.display = "none";
+  }
+
+  // Event Listeners
+  document.getElementById("start-btn").addEventListener("click", () => {
+    state.started = true;
+    saveState();
+    renderHub();
+  });
+
+  document.getElementById("home-btn").addEventListener("click", renderHub);
+  document.getElementById("back-hub-btn").addEventListener("click", renderHub);
+  document.getElementById("settings-btn").addEventListener("click", openResetModal);
+
+  document.getElementById("check-btn").addEventListener("click", checkCurrentPuzzle);
+  document.getElementById("hint-btn").addEventListener("click", showCurrentHint);
+  document.getElementById("puzzle-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      checkCurrentPuzzle();
+    }
+  });
+
+  // Initialize
+  loadState();
+  if (state.started) {
+    renderHub();
+  } else {
+    showScreen("title-screen");
+  }
+})();
+</script>
+</body>
+</html>
