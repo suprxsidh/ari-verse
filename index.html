@@ -54,7 +54,7 @@
     border: none;
     cursor: pointer;
     background: var(--accent);
-    color: #fff;
+    color: var(--btn-text, #fff);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: transform 0.15s ease, opacity 0.15s ease;
     display: inline-flex;
@@ -68,14 +68,15 @@
   }
 
   button:focus-visible, input:focus-visible {
-    outline: 3px solid var(--text);
+    outline: 3px solid var(--accent);
     outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.35);
   }
 
   button.secondary {
-    background: rgba(255, 255, 255, 0.75);
-    color: var(--text);
-    border: 2px solid var(--accent);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink, #1f1f1f);
+    border: 2px solid var(--card-accent, var(--accent));
   }
 
   input[type="text"] {
@@ -150,8 +151,8 @@
   }
 
   .icon-btn {
-    background: rgba(255, 255, 255, 0.65);
-    color: var(--text);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink, #1f1f1f);
     padding: 8px 14px;
     font-size: 14px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -317,7 +318,7 @@
 
   .hidden-obj.found {
     background: rgba(255, 255, 255, 0.9);
-    border-color: var(--accent);
+    border-color: var(--card-accent, var(--accent));
   }
 
   .hidden-obj.found::after {
@@ -325,7 +326,7 @@
     position: absolute;
     bottom: -2px;
     right: -2px;
-    background: var(--accent);
+    background: var(--card-accent, var(--accent));
     color: #fff;
     font-size: 0.65rem;
     width: 18px;
@@ -351,7 +352,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 800;
-    color: var(--accent);
+    color: var(--card-accent, var(--accent));
     margin-bottom: 6px;
   }
 
@@ -398,6 +399,30 @@
     color: #c62828;
   }
 
+  .game-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: contain;
+  }
+  .game-overlay.open { display: flex; }
+  .game-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  .game-head h2 { font-family: var(--font-display); font-size: 1.1rem; flex: 1; text-align: center; }
+  #game-root { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+  .game-skip { display: none; }
+
   .unlock-card {
     text-align: center;
   }
@@ -405,7 +430,7 @@
   .unlock-card h3 {
     font-size: 1.35rem;
     margin-bottom: 8px;
-    color: var(--accent);
+    color: var(--card-accent, var(--accent));
   }
 
   .unlock-card p {
@@ -420,7 +445,8 @@
     background: rgba(255, 255, 255, 0.95);
     padding: 18px;
     border-radius: 16px;
-    border: 2px solid var(--accent);
+    border: 2px solid var(--card-accent, var(--accent));
+    color: var(--ink, #1f1f1f);
     margin-bottom: 16px;
     font-size: 1.02rem;
     line-height: 1.55;
@@ -559,6 +585,19 @@
     <span class="scene-hint">Tap floating keepsakes</span>
   </div>
 
+  <div id="game-panel" class="panel-card unlock-card" style="display:none;">
+    <div class="puzzle-step">Mini-game</div>
+    <h3 id="game-panel-title">Play</h3>
+    <p id="game-panel-intro"></p>
+    <button id="game-play-btn" type="button" style="width:100%;">Play ▶</button>
+  </div>
+
+  <div id="complete-panel" class="panel-card unlock-card" style="display:none;">
+    <h3 id="complete-heading">Room Complete!</h3>
+    <p id="unlock-line"></p>
+    <div id="birthday-card" class="bday-note" style="display:none;"></div>
+    <button id="back-hub-btn" type="button" style="width:100%;">Back to Hallway</button>
+  </div>
   <div id="puzzle-panel" class="panel-card">
     <div id="puzzle-step" class="puzzle-step"></div>
     <p id="puzzle-prompt" class="puzzle-prompt"></p>
@@ -573,13 +612,17 @@
     <div id="hint-box" class="hint-box"></div>
   </div>
 
-  <div id="complete-panel" class="panel-card unlock-card" style="display:none;">
-    <h3 id="complete-heading">Room Complete!</h3>
-    <p id="unlock-line"></p>
-    <div id="birthday-card" class="bday-note" style="display:none;"></div>
-    <button id="back-hub-btn" type="button" style="width:100%;">Back to Hallway</button>
-  </div>
 </section>
+
+<!-- Mini-game overlay -->
+<div id="game-overlay" class="game-overlay" role="dialog" aria-modal="true" aria-labelledby="game-title">
+  <div class="game-head">
+    <button id="game-close" type="button" class="icon-btn">← Leave</button>
+    <h2 id="game-title">Mini-game</h2>
+    <button id="game-skip" type="button" class="icon-btn game-skip">Skip ⏭</button>
+  </div>
+  <div id="game-root"></div>
+</div>
 
 <!-- Fact & Settings Modal -->
 <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -595,6 +638,14 @@
 
 <!-- Load external rooms.js -->
 <script src="./rooms.js"></script>
+<script src="./games/jukebox.js"></script>
+<script src="./games/constellation.js"></script>
+<script src="./games/scratch.js"></script>
+<script src="./games/gravity.js"></script>
+<script src="./games/scrapbook.js"></script>
+<script src="./games/desk.js"></script>
+<script src="./games/memory.js"></script>
+<script src="./games/lab.js"></script>
 <script>
 (function() {
   const NAME_PLACEHOLDER = "you";
@@ -792,7 +843,47 @@
     document.documentElement.style.setProperty("--bg1", p.bg1);
     document.documentElement.style.setProperty("--bg2", p.bg2);
     document.documentElement.style.setProperty("--accent", p.accent);
-    document.documentElement.style.setProperty("--text", p.text);
+    const bgA = hexToRgb(p.bg1), bgB = hexToRgb(p.bg2), txt = hexToRgb(p.text);
+    let textHex = p.text;
+    if (Math.min(contrast(txt, bgA), contrast(txt, bgB)) < 4.5) {
+      const mid = bgA.map((v, i) => Math.round((v + bgB[i]) / 2));
+      textHex = contrast(mid, [255, 255, 255]) >= contrast(mid, [31, 31, 31]) ? "#ffffff" : "#1f1f1f";
+      if (Math.min(contrast(hexToRgb(textHex), bgA), contrast(hexToRgb(textHex), bgB)) < 4.5) {
+        textHex = contrast(bgA, [31, 31, 31]) >= contrast(bgB, [31, 31, 31]) ? "#1f1f1f" : "#ffffff";
+      }
+    }
+    document.documentElement.style.setProperty("--text", textHex);
+    const root = document.documentElement.style;
+    root.setProperty("--btn-text", readableOn(p.accent));
+    root.setProperty("--card-accent", darkenForCard(p.accent));
+  }
+
+  // Contrast helpers: light surfaces (cards, secondary buttons) and accent-colored buttons
+  // must stay readable whatever palette a room uses.
+  function hexToRgb(hex) {
+    let h = String(hex || "").replace("#", "");
+    if (h.length === 3) h = h.split("").map(c => c + c).join("");
+    const n = parseInt(h, 16);
+    return Number.isNaN(n) || h.length !== 6 ? [216, 27, 96] : [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function luminance(rgb) {
+    const f = rgb.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2];
+  }
+  function contrast(a, b) {
+    const la = luminance(a), lb = luminance(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+  function readableOn(bgHex) {
+    const bg = hexToRgb(bgHex);
+    return contrast(bg, [255, 255, 255]) >= contrast(bg, [31, 31, 31]) ? "#ffffff" : "#1f1f1f";
+  }
+  function darkenForCard(hex) {
+    let rgb = hexToRgb(hex);
+    for (let i = 0; i < 30 && contrast(rgb, [255, 255, 255]) < 4.6; i++) {
+      rgb = rgb.map(v => Math.round(v * 0.9));
+    }
+    return "rgb(" + rgb.join(",") + ")";
   }
 
   function showScreen(screenId) {
@@ -973,7 +1064,7 @@
     const items = getValidHiddenList(activeRoom);
     const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
     const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
-    const solved = activeIsFinale ? (rState.completed ? 1 : 0) : rState.solvedCount;
+    const solved = activeIsFinale ? (rState.bonusSolved ? 1 : 0) : rState.solvedCount;
     const found = rState.found.length;
 
     const progressEl = document.getElementById("room-progress");
@@ -982,7 +1073,7 @@
       : "";
 
     progressEl.innerHTML = `
-      <span>objects found ${found}/${items.length}, puzzles solved ${solved}/${puzzles.length}</span>
+      <span>objects found ${found}/${items.length}, bonus riddles ${solved}/${puzzles.length}</span>
       ${badgeHtml}
     `;
   }
@@ -1003,40 +1094,51 @@
 
     const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
     const puzzles = activeIsFinale ? [activeRoom.finalePuzzle] : (activeRoom.puzzles || []);
-    const isDone = activeIsFinale ? rState.completed : (rState.solvedCount >= puzzles.length);
+    const gamePanel = document.getElementById("game-panel");
+    const gameDone = !!rState.completed;
+    const bonusLeft = activeIsFinale ? !rState.bonusSolved : (rState.solvedCount < puzzles.length);
 
-    if (isDone) {
-      if (!activeIsFinale) rState.completed = true;
-      saveState();
+    if (!gameDone) {
+      const def = (window.GAMES || {})[activeRoom.game] || {};
+      document.getElementById("game-panel-title").textContent = def.title || activeRoom.era;
+      document.getElementById("game-panel-intro").textContent = def.intro || "Tap play to open this room's mini-game.";
+      gamePanel.style.display = "block";
       puzzlePanel.style.display = "none";
-      completePanel.style.display = "block";
-
-      const bdayCard = document.getElementById("birthday-card");
-      const unlockLine = document.getElementById("unlock-line");
-      const heading = document.getElementById("complete-heading");
-
-      if (activeIsFinale) {
-        heading.textContent = "Happy Birthday! 🎉";
-        unlockLine.textContent = "You unlocked the entire Ari-verse!";
-        const noteText = String(activeRoom.birthdayNote || "").replace(/\[NAME\]/g, NAME_PLACEHOLDER);
-        bdayCard.textContent = noteText;
-        bdayCard.style.display = "block";
-        startConfetti();
-      } else {
-        heading.textContent = "Era Complete! ✨";
-        unlockLine.textContent = activeRoom.unlockLine || "The next door in the hallway is now open!";
-        bdayCard.style.display = "none";
-      }
-    } else {
-      puzzlePanel.style.display = "block";
       completePanel.style.display = "none";
+      return;
+    }
+
+    gamePanel.style.display = "none";
+    saveState();
+    completePanel.style.display = "block";
+
+    const bdayCard = document.getElementById("birthday-card");
+    const unlockLine = document.getElementById("unlock-line");
+    const heading = document.getElementById("complete-heading");
+
+    if (activeIsFinale) {
+      heading.textContent = "Happy Birthday! 🎉";
+      unlockLine.textContent = "You unlocked the entire Ari-verse!";
+      const noteText = String(activeRoom.birthdayNote || "").replace(/\[NAME\]/g, NAME_PLACEHOLDER);
+      bdayCard.textContent = noteText;
+      bdayCard.style.display = "block";
+      startConfetti();
+    } else {
+      heading.textContent = "Era Complete! ✨";
+      unlockLine.textContent = activeRoom.unlockLine || "The next door in the hallway is now open!";
+      bdayCard.style.display = "none";
+    }
+
+    if (bonusLeft) {
+      puzzlePanel.style.display = "block";
       const currentIdx = activeIsFinale ? 0 : rState.solvedCount;
       const currentPuzzle = puzzles[currentIdx];
-
       document.getElementById("puzzle-step").textContent = activeIsFinale
-        ? "Finale Riddle"
-        : `Puzzle ${currentIdx + 1} of ${puzzles.length}`;
+        ? "Bonus riddle (optional)"
+        : `Bonus riddle ${currentIdx + 1} of ${puzzles.length} (optional)`;
       document.getElementById("puzzle-prompt").textContent = currentPuzzle ? currentPuzzle.prompt : "";
+    } else {
+      puzzlePanel.style.display = "none";
     }
   }
 
@@ -1060,12 +1162,9 @@
     const accepted = (currentPuzzle.answers || []).map(normalizeAnswer);
     if (accepted.includes(userGuess)) {
       if (activeIsFinale) {
-        rState.completed = true;
+        rState.bonusSolved = true;
       } else {
         rState.solvedCount += 1;
-        if (rState.solvedCount >= puzzles.length) {
-          rState.completed = true;
-        }
       }
       saveState();
       updateRoomProgressAndPuzzle();
@@ -1086,6 +1185,86 @@
       hintBox.textContent = "Hint: " + currentPuzzle.hint;
       hintBox.classList.add("visible");
     }
+  }
+
+  // Mini-game runtime: shared sound helpers, overlay, win and skip handling
+  let audioCtx = null, gameCleanup = null, skipTimer = null;
+  function ensureAudio() {
+    try {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {}
+  }
+  function tone(freq, dur, type, vol) {
+    if (!audioCtx) return;
+    try {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      const t = audioCtx.currentTime, d = dur || 0.18, v = vol || 0.12;
+      o.type = type || "sine";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(v, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t + d + 0.03);
+    } catch (e) {}
+  }
+  function chord(freqs, dur) { (freqs || []).forEach(f => tone(f, dur || 0.45, "triangle", 0.07)); }
+  function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms || 30); } catch (e) {} }
+
+  function openGame() {
+    const overlay = document.getElementById("game-overlay");
+    const root = document.getElementById("game-root");
+    const skip = document.getElementById("game-skip");
+    const def = (window.GAMES || {})[activeRoom.game];
+    ensureAudio();
+    root.innerHTML = "";
+    skip.style.display = "none";
+    clearTimeout(skipTimer);
+    skipTimer = setTimeout(() => { skip.style.display = "inline-flex"; }, 45000);
+    document.getElementById("game-title").textContent = (def && def.title) || activeRoom.era;
+    overlay.classList.add("open");
+    if (!def || typeof def.mount !== "function") {
+      root.textContent = "This mini-game could not load. Tap Skip to continue.";
+      skip.style.display = "inline-flex";
+      return;
+    }
+    const api = {
+      palette: activeRoom.palette,
+      win: finishGame,
+      tone, chord, vibrate,
+      reduceMotion: !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)
+    };
+    try {
+      gameCleanup = def.mount(root, api) || null;
+    } catch (e) {
+      root.textContent = "This mini-game hit a snag. Tap Skip to continue.";
+      skip.style.display = "inline-flex";
+    }
+  }
+
+  function closeGame() {
+    const overlay = document.getElementById("game-overlay");
+    overlay.classList.remove("open");
+    clearTimeout(skipTimer);
+    if (typeof gameCleanup === "function") { try { gameCleanup(); } catch (e) {} }
+    gameCleanup = null;
+    document.getElementById("game-root").innerHTML = "";
+  }
+
+  function finishGame() {
+    if (!document.getElementById("game-overlay").classList.contains("open")) return;
+    closeGame();
+    const rState = activeIsFinale ? state.finale : getRoomState(activeRoom.id);
+    rState.completed = true;
+    saveState();
+    updateProgressLine();
+    updateRoomProgressAndPuzzle();
+    chord([523, 659, 784], 0.6);
+    vibrate(60);
   }
 
   // Modal Handling
@@ -1202,6 +1381,10 @@
   document.getElementById("back-hub-btn").addEventListener("click", renderHub);
   document.getElementById("settings-btn").addEventListener("click", openResetModal);
 
+  document.getElementById("game-play-btn").addEventListener("click", openGame);
+  document.getElementById("game-close").addEventListener("click", closeGame);
+  document.getElementById("game-skip").addEventListener("click", finishGame);
+
   document.getElementById("check-btn").addEventListener("click", checkCurrentPuzzle);
   document.getElementById("hint-btn").addEventListener("click", showCurrentHint);
   document.getElementById("puzzle-input").addEventListener("keydown", (e) => {
@@ -1210,6 +1393,20 @@
       checkCurrentPuzzle();
     }
   });
+
+  // Test hook, only active when the page is opened with #test
+  if (location.hash === "#test") {
+    window.__ARI = {
+      openRoomIndex(i) { openRoom(i === 7 ? FINALE : ROOMS[i], i === 7); },
+      play() { openGame(); },
+      async solve() {
+        const def = (window.GAMES || {})[activeRoom.game];
+        await def.solveForTest(document.getElementById("game-root"), { palette: activeRoom.palette, tone, chord, vibrate });
+      },
+      state: () => JSON.parse(JSON.stringify(state)),
+      count: () => ROOMS.length
+    };
+  }
 
   // Initialize
   loadState();
